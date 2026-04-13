@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f1115" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" type="image/png" />
+  <title>القرآن والتفسير</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="surahSidebar" aria-label="قائمة السور">
+      <div class="brand">
+        <h1>القرآن والتفسير</h1>
+        <p>قراءة وتفسير بدون إنترنت</p>
+      </div>
+      <label class="sidebar-search-label" for="surahSearch">بحث السور</label>
+      <input id="surahSearch" type="search" placeholder="ابحث باسم السورة..." />
+      <ul id="surahList" class="surah-list"></ul>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button id="toggleSidebar" class="btn" aria-label="إظهار أو إخفاء السور" aria-expanded="false">السور</button>
+        <div class="topbar-title">
+          <h2 id="currentTitle">سورة الفاتحة</h2>
+          <p id="currentMeta">آية 1</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="modeToggle" class="btn">المسبحة</button>
+          <button id="bookmarkToggle" class="icon-btn" aria-label="إشارة مرجعية">★</button>
+        </div>
+      </header>
+
+      <section id="homeView" class="view active">
+        <div id="reader" class="reader" tabindex="0" aria-label="قارئ القرآن"></div>
+        <div class="reader-controls">
+          <button id="prevBtn" class="btn">السابق</button>
+          <input id="pageInput" class="page-jump-input" type="number" min="1" max="604" placeholder="رقم الصفحة" />
+          <button id="jumpBtn" class="btn">اذهب</button>
+          <button id="nextBtn" class="btn">التالي</button>
+          <button id="audioBtn" class="btn">تشغيل الصوت</button>
+        </div>
+      </section>
+
+      <section id="searchView" class="view">
+        <h3>البحث في القرآن</h3>
+        <input id="textSearch" type="search" placeholder="اكتب كلمة أو جزء آية..." />
+        <ul id="searchResults" class="result-list"></ul>
+      </section>
+
+      <section id="khatmaView" class="view">
+        <h3>متابعة الختمة</h3>
+        <p id="khatmaProgress">لم تبدأ بعد.</p>
+        <button id="markReadBtn" class="btn">تمت قراءة الآية الحالية</button>
+      </section>
+
+      <section id="bookmarksView" class="view">
+        <h3>الإشارات المرجعية</h3>
+        <ul id="bookmarksList" class="result-list"></ul>
+      </section>
+
+      <section id="settingsView" class="view">
+        <h3>الإعدادات</h3>
+        <div class="settings-grid">
+          <label>
+            حجم الخط
+            <input id="fontSizeRange" type="range" min="18" max="44" step="1" />
+          </label>
+          <label>
+            الثيم
+            <select id="themeSelect">
+              <option value="dark-gold">داكن ذهبي</option>
+              <option value="sepia">سيبيا</option>
+            </select>
+          </label>
+          <label>
+            القارئ
+            <select id="reciterSelect">
+              <option value="ar.alafasy">العفاسي</option>
+              <option value="ar.husary">الحصري</option>
+            </select>
+          </label>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav mobile-only">
+    <button data-view="homeView" class="active">الرئيسية</button>
+    <button data-view="searchView">البحث</button>
+    <button data-view="khatmaView">الختمة</button>
+    <button data-href="azkar.html">المسبحة</button>
+    <button data-view="bookmarksView">الإشارات</button>
+    <button data-view="settingsView">الإعدادات</button>
+  </nav>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(() => {
+          // Ignore registration failures in unsupported contexts.
+        });
+      });
+    }
+  </script>
+  <script src="script.js" type="module"></script>
+</body>
+</html>

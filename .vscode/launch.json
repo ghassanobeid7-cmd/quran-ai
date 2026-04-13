@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Quran in Chrome",
+            "type": "pwa-chrome",
+            "request": "launch",
+            "url": "http://localhost:5500/index.html",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "Start Quran Server"
+        }
+    ]
+}

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المسبحة الرقمية</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f1115" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tasbih-page {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(215, 176, 103, 0.1), transparent 32%),
+        radial-gradient(circle at 100% 100%, rgba(138, 106, 52, 0.09), transparent 34%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .tasbih-page .topbar {
+      background: rgba(25, 29, 36, 0.82);
+      border-bottom: 1px solid rgba(215, 176, 103, 0.18);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .tasbih-main {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .tasbih-hero,
+    .tasbih-card {
+      border: 1px solid rgba(215, 176, 103, 0.18);
+      border-radius: 24px;
+      background: linear-gradient(165deg, var(--surface), var(--surface-2));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .tasbih-hero {
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tasbih-hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -18% -60% auto;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(215, 176, 103, 0.24) 0%, rgba(215, 176, 103, 0.02) 65%, transparent 72%);
+      pointer-events: none;
+    }
+
+    .tasbih-kicker {
+      margin: 0 0 10px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    .tasbih-kicker::after {
+      content: "";
+      display: block;
+      width: 72px;
+      height: 3px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #f4d47c);
+    }
+
+    .tasbih-hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--text);
+    }
+
+    .tasbih-hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .tasbih-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+      max-width: 860px;
+    }
+
+    .tasbih-card {
+      padding: 22px;
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+      touch-action: manipulation;
+    }
+
+    .tasbih-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(249, 168, 37, 0.34);
+      box-shadow:
+        0 26px 70px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .tasbih-phrase {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      padding: 14px 18px;
+      border-radius: 20px;
+      background:
+        linear-gradient(135deg, rgba(215, 176, 103, 0.22), rgba(255, 255, 255, 0.04)),
+        rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(215, 176, 103, 0.26);
+      font-size: clamp(1.55rem, 3vw, 2.4rem);
+      font-weight: 800;
+      color: var(--text);
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .tasbih-phrase.is-animated {
+      transform: scale(1.03);
+      box-shadow:
+        0 28px 54px rgba(215, 176, 103, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .tasbih-pad {
+      width: 100%;
+      min-height: clamp(220px, 46vh, 340px);
+      margin-top: 16px;
+      border-radius: 26px;
+      border: 1px solid rgba(249, 168, 37, 0.24);
+      background:
+        radial-gradient(circle at 30% 15%, rgba(249, 168, 37, 0.26), transparent 52%),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+        rgba(16, 20, 27, 0.76);
+      color: var(--text);
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.36),
+        inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      text-align: center;
+      transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .tasbih-pad:hover,
+    .tasbih-pad:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(249, 168, 37, 0.4);
+      box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(249, 168, 37, 0.18);
+    }
+
+    .tasbih-pad:active,
+    .tasbih-pad.is-tapped {
+      transform: scale(0.992);
+      border-color: rgba(249, 168, 37, 0.48);
+    }
+
+    .tasbih-pad-label {
+      color: rgba(247, 240, 223, 0.84);
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .tasbih-pad strong {
+      font-size: clamp(4.2rem, 16vw, 7rem);
+      line-height: 0.95;
+      color: #ffdf8d;
+      text-shadow: 0 16px 40px rgba(215, 176, 103, 0.24);
+    }
+
+    .tasbih-pad-sub {
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .tasbih-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .dhikr-preset {
+      border: 1px solid rgba(215, 176, 103, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .dhikr-preset:hover,
+    .dhikr-preset:focus-visible,
+    .tasbih-actions .btn:hover,
+    .tasbih-actions .btn:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(249, 168, 37, 0.38);
+      filter: brightness(1.06);
+    }
+
+    .dhikr-preset.active {
+      background: linear-gradient(135deg, rgba(249, 168, 37, 0.4), rgba(251, 191, 36, 0.16));
+      color: #fffdf7;
+      border-color: rgba(215, 176, 103, 0.38);
+      box-shadow:
+        0 14px 30px rgba(249, 168, 37, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .tasbih-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .tasbih-actions .btn {
+      min-width: 120px;
+      min-height: 44px;
+      background: linear-gradient(135deg, rgba(249, 168, 37, 0.14), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(249, 168, 37, 0.18);
+      color: #fff9ef;
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease, background 160ms ease;
+    }
+
+    .tasbih-actions .btn:active,
+    .dhikr-preset:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .tasbih-tap-hint {
+      margin-top: 12px;
+      color: rgba(247, 240, 223, 0.74);
+      font-size: 0.95rem;
+    }
+
+    .adhkar-section {
+      border: 1px solid rgba(215, 176, 103, 0.18);
+      border-radius: 24px;
+      background: linear-gradient(165deg, var(--surface), var(--surface-2));
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .adhkar-section h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      color: var(--text);
+    }
+
+    .adhkar-section p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .adhkar-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .adhkar-tab {
+      border: 1px solid rgba(215, 176, 103, 0.2);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      padding: 10px 14px;
+      min-height: 42px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .adhkar-tab.active {
+      background: linear-gradient(135deg, rgba(249, 168, 37, 0.36), rgba(251, 191, 36, 0.14));
+      border-color: rgba(249, 168, 37, 0.42);
+      color: #fffdf8;
+    }
+
+    .adhkar-panel {
+      display: none;
+      gap: 10px;
+    }
+
+    .adhkar-panel.active {
+      display: grid;
+    }
+
+    .adhkar-item {
+      border: 1px solid rgba(215, 176, 103, 0.16);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+      padding: 14px;
+      line-height: 1.95;
+      color: #f8f2e2;
+      font-size: 1rem;
+    }
+
+    .adhkar-item small {
+      display: block;
+      margin-top: 8px;
+      color: rgba(247, 240, 223, 0.7);
+      font-size: 0.9rem;
+    }
+
+    .tasbih-message {
+      min-height: 24px;
+      color: rgba(247, 240, 223, 0.78);
+    }
+
+    .count-pop {
+      animation: count-pop 220ms ease;
+    }
+
+    @keyframes count-pop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .flash-up {
+      animation: flash-up 260ms ease;
+    }
+
+    @keyframes flash-up {
+      0% { transform: translateY(8px); opacity: 0.2; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .tasbih-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tasbih-main {
+        width: min(100%, calc(100% - 20px));
+        padding: 20px 0 34px;
+      }
+
+      .tasbih-card,
+      .adhkar-section,
+      .tasbih-hero {
+        padding: 16px;
+        border-radius: 20px;
+      }
+
+      .tasbih-pad {
+        min-height: clamp(240px, 52vh, 360px);
+        border-radius: 20px;
+      }
+
+      .tasbih-pad strong {
+        font-size: clamp(4.4rem, 24vw, 6.6rem);
+      }
+
+      .tasbih-actions .btn {
+        width: 100%;
+      }
+
+      .adhkar-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body class="tasbih-page">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-title">
+        <p>صفحة الأذكار</p>
+        <h2>المسبحة الرقمية</h2>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn" href="index.html">العودة إلى القرآن</a>
+      </div>
+    </header>
+
+    <main class="tasbih-main">
+      <section class="tasbih-hero">
+        <p class="tasbih-kicker">ورد الذكر</p>
+        <h1>سبحان الله</h1>
+        <p>واجهة بسيطة للتسبيح: اختر الذكر ثم اضغط للتسبيح براحة وبدون تفاصيل مشتتة.</p>
+      </section>
+
+      <section class="tasbih-grid">
+        <div class="tasbih-card" id="tasbihCard">
+          <div class="tasbih-phrase" id="tasbihPhrase">سبحان الله</div>
+
+          <div class="tasbih-presets" aria-label="خانة الأذكار السريعة">
+            <button class="btn dhikr-preset active" data-phrase="سبحان الله">سبحان الله</button>
+            <button class="btn dhikr-preset" data-phrase="الحمد لله">الحمد لله</button>
+            <button class="btn dhikr-preset" data-phrase="لا إله إلا الله">لا إله إلا الله</button>
+            <button class="btn dhikr-preset" data-phrase="الله أكبر">الله أكبر</button>
+            <button class="btn dhikr-preset" data-phrase="استغفر الله">استغفر الله</button>
+          </div>
+
+          <button id="tasbihPadBtn" class="tasbih-pad" aria-label="زر التسبيح الكبير">
+            <span class="tasbih-pad-label">اضغط للتسبيح</span>
+            <strong id="tasbihCount">0</strong>
+            <span class="tasbih-pad-sub">عدد التسبيحات</span>
+          </button>
+
+          <div class="tasbih-actions">
+            <button id="tasbihResetBtn" class="btn">تصفير</button>
+          </div>
+          <p class="tasbih-tap-hint">زر واحد كبير لتسبيح سريع ومريح بيد واحدة.</p>
+          <p id="tasbihMessage" class="tasbih-message"></p>
+        </div>
+
+        <section class="adhkar-section" aria-label="أذكار الصباح والمساء">
+          <h2>أذكار الصباح والمساء</h2>
+          <p>أذكار مختصرة يمكنك قراءتها بعد التسبيح.</p>
+
+          <div class="adhkar-tabs" role="tablist" aria-label="التبديل بين أذكار الصباح والمساء">
+            <button class="adhkar-tab active" data-tab="morning" role="tab" aria-selected="true">أذكار الصباح</button>
+            <button class="adhkar-tab" data-tab="evening" role="tab" aria-selected="false">أذكار المساء</button>
+          </div>
+
+          <div class="adhkar-panel active" id="adhkarMorning" role="tabpanel">
+            <article class="adhkar-item">أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.<small>مرة واحدة</small></article>
+            <article class="adhkar-item">اللهم بك أصبحنا وبك أمسينا وبك نحيا وبك نموت وإليك النشور.<small>مرة واحدة</small></article>
+            <article class="adhkar-item">رضيت بالله ربًا، وبالإسلام دينًا، وبمحمد صلى الله عليه وسلم نبيًا.<small>3 مرات</small></article>
+            <article class="adhkar-item">حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم.<small>7 مرات</small></article>
+            <article class="adhkar-item">اللهم إني أسألك العفو والعافية في الدنيا والآخرة.<small>مرة واحدة</small></article>
+          </div>
+
+          <div class="adhkar-panel" id="adhkarEvening" role="tabpanel" hidden>
+            <article class="adhkar-item">أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.<small>مرة واحدة</small></article>
+            <article class="adhkar-item">اللهم بك أمسينا وبك أصبحنا وبك نحيا وبك نموت وإليك المصير.<small>مرة واحدة</small></article>
+            <article class="adhkar-item">رضيت بالله ربًا، وبالإسلام دينًا، وبمحمد صلى الله عليه وسلم نبيًا.<small>3 مرات</small></article>
+            <article class="adhkar-item">اللهم إني أمسيت أُشهدك وأُشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لا إله إلا أنت وحدك لا شريك لك وأن محمدًا عبدك ورسولك.<small>4 مرات</small></article>
+            <article class="adhkar-item">أعوذ بكلمات الله التامات من شر ما خلق.<small>3 مرات</small></article>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="azkar-script.js" type="module"></script>
+</body>
+</html>
