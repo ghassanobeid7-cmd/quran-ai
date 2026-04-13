@@ -27,6 +27,8 @@ const state = {
 const BASMALA_TEXT = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
 const readerEl = document.getElementById("reader");
+const pageTafsirSectionEl = document.getElementById("pageTafsirSection");
+const pageTafsirEl = document.getElementById("pageTafsir");
 const appShellEl = document.getElementById("appShell");
 const surahSidebarEl = document.getElementById("surahSidebar");
 const toggleSidebarBtnEl = document.getElementById("toggleSidebar");
@@ -433,6 +435,10 @@ function renderAyahMode() {
     ${ayahTextHtml}
     <div class="tafsir-box">${tafsir}</div>
   `;
+
+  if (pageTafsirSectionEl) {
+    pageTafsirSectionEl.style.display = "none";
+  }
 }
 
 function renderPageMode() {
@@ -506,8 +512,12 @@ function renderPageMode() {
 
   readerEl.innerHTML = `
     <div class="page-ayahs">${textHtml || "لا توجد آيات في هذه الصفحة ضمن البيانات الحالية."}</div>
-    <div class="tafsir-box">${tafsirHtml}</div>
   `;
+
+  if (pageTafsirSectionEl && pageTafsirEl) {
+    pageTafsirSectionEl.style.display = "block";
+    pageTafsirEl.innerHTML = tafsirHtml;
+  }
 }
 
 function navigate(step) {

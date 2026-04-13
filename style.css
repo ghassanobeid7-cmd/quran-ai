@@ -159,6 +159,27 @@ select {
   font-size: var(--font-size, 30px);
 }
 
+.mushaf-page-shell {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.mushaf-page {
+  width: min(100%, 860px);
+  aspect-ratio: 10 / 16;
+  min-height: 0;
+  padding: clamp(16px, 2.8vw, 34px);
+  background:
+    linear-gradient(180deg, rgba(15, 18, 22, 0.95), rgba(10, 12, 16, 0.95)),
+    radial-gradient(circle at 50% 0%, rgba(215, 176, 103, 0.13), transparent 40%);
+  border: 1px solid rgba(215, 176, 103, 0.32);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
 .ayah-number {
   color: var(--accent);
   font-size: 0.8em;
@@ -175,6 +196,15 @@ select {
 
 .page-ayahs {
   line-height: 2.1;
+  text-align: justify;
+  text-justify: inter-word;
+  height: 100%;
+  overflow: auto;
+  padding-inline: 2px;
+}
+
+.page-ayah {
+  color: var(--text);
 }
 
 .tafsir-box {
@@ -204,9 +234,9 @@ select {
 }
 
 .page-tafsir-section {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(215, 176, 103, 0.18);
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(215, 176, 103, 0.22);
 }
 
 .page-tafsir-section h4 {
@@ -628,7 +658,7 @@ select {
 .surah-inline-title {
   margin: 20px 0 10px;
   text-align: center;
-  font-size: 1.05em;
+  font-size: 1.08em;
   color: var(--accent);
   font-weight: 700;
 }
@@ -656,10 +686,21 @@ select {
   }
 
   .reader {
-    min-height: 60vh;
+    min-height: 0;
     padding: 14px;
-    line-height: 2.3;
-    font-size: clamp(24px, 7.4vw, 34px);
+    line-height: 2.25;
+    font-size: clamp(21px, 6.2vw, 31px);
+  }
+
+  .mushaf-page {
+    width: 100%;
+    aspect-ratio: 9 / 15;
+    border-radius: 14px;
+    padding: 14px 12px;
+  }
+
+  .page-ayahs {
+    line-height: 2.2;
   }
 
   .reader-controls {

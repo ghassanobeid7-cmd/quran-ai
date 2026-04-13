@@ -35,7 +35,9 @@
       </header>
 
       <section id="homeView" class="view active">
-        <div id="reader" class="reader" tabindex="0" aria-label="قارئ القرآن"></div>
+        <div class="mushaf-page-shell">
+          <div id="reader" class="reader mushaf-page" tabindex="0" aria-label="قارئ القرآن"></div>
+        </div>
         <div class="reader-controls">
           <button id="prevBtn" class="btn">السابق</button>
           <input id="pageInput" class="page-jump-input" type="number" min="1" max="604" placeholder="رقم الصفحة" />
@@ -43,6 +45,10 @@
           <button id="nextBtn" class="btn">التالي</button>
           <button id="audioBtn" class="btn">تشغيل الصوت</button>
         </div>
+        <section id="pageTafsirSection" class="page-tafsir-section">
+          <h4>التفسير الميسر للصفحة</h4>
+          <div id="pageTafsir" class="tafsir-box"></div>
+        </section>
       </section>
 
       <section id="searchView" class="view">
