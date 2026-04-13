@@ -12,6 +12,12 @@
 <body>
   <div class="app-shell" id="appShell">
     <aside class="sidebar" id="surahSidebar" aria-label="قائمة السور">
+      <nav class="drawer-nav mobile-only" aria-label="قائمة التطبيق">
+        <button class="btn drawer-nav-btn" data-view="homeView">الرئيسية</button>
+        <button class="btn drawer-nav-btn" data-view="searchView">البحث</button>
+        <button class="btn drawer-nav-btn" data-view="khatmaView">الختمة</button>
+        <button class="btn drawer-nav-btn" data-view="settingsView">الإعدادات</button>
+      </nav>
       <div class="brand">
         <h1>القرآن والتفسير</h1>
         <p>قراءة وتفسير بدون إنترنت</p>
@@ -22,6 +28,7 @@
     </aside>
 
     <main class="main-content">
+      <button id="mobileMenuBtn" class="mobile-clean-menu mobile-only" aria-label="فتح القائمة" aria-expanded="false">⋮</button>
       <header class="topbar">
         <button id="toggleSidebar" class="btn" aria-label="إظهار أو إخفاء السور" aria-expanded="false">السور</button>
         <div class="topbar-title">
@@ -93,6 +100,8 @@
       </section>
     </main>
   </div>
+
+  <a id="tasbihFab" class="tasbih-fab mobile-only" href="azkar.html" aria-label="فتح المسبحة">م</a>
 
   <nav class="mobile-nav mobile-only">
     <button data-view="homeView" class="active">الرئيسية</button>

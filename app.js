@@ -32,6 +32,7 @@ const pageTafsirEl = document.getElementById("pageTafsir");
 const appShellEl = document.getElementById("appShell");
 const surahSidebarEl = document.getElementById("surahSidebar");
 const toggleSidebarBtnEl = document.getElementById("toggleSidebar");
+const mobileMenuBtnEl = document.getElementById("mobileMenuBtn");
 const currentTitleEl = document.getElementById("currentTitle");
 const currentMetaEl = document.getElementById("currentMeta");
 const modeToggleEl = document.getElementById("modeToggle");
@@ -47,6 +48,10 @@ const themeSelectEl = document.getElementById("themeSelect");
 const reciterSelectEl = document.getElementById("reciterSelect");
 const pageInputEl = document.getElementById("pageInput");
 const jumpBtnEl = document.getElementById("jumpBtn");
+const audioBtnEl = document.getElementById("audioBtn");
+
+let activeAudio = null;
+let playbackToken = 0;
 
 init().catch((error) => {
   const errorMessage = error?.message || String(error) || "خطأ غير معروف";
@@ -203,6 +208,12 @@ function bindEvents() {
     setSidebarOpen(!appShellEl.classList.contains("sidebar-open"));
   });
 
+  if (mobileMenuBtnEl) {
+    mobileMenuBtnEl.addEventListener("click", () => {
+      setSidebarOpen(!appShellEl.classList.contains("sidebar-open"));
+    });
+  }
+
   modeToggleEl.addEventListener("click", () => {
     window.location.href = "azkar.html";
   });
@@ -241,6 +252,20 @@ function bindEvents() {
     });
   });
 
+  document.querySelectorAll(".drawer-nav-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.dataset.href) {
+        window.location.href = button.dataset.href;
+        return;
+      }
+
+      if (button.dataset.view) {
+        switchView(button.dataset.view);
+      }
+      setSidebarOpen(false);
+    });
+  });
+
   document.addEventListener("keydown", handleKeyboard);
 
   readerEl.addEventListener("touchstart", (event) => {
@@ -268,7 +293,11 @@ function bindEvents() {
       return;
     }
 
-    if (surahSidebarEl.contains(event.target) || toggleSidebarBtnEl.contains(event.target)) {
+    if (
+      surahSidebarEl.contains(event.target) ||
+      toggleSidebarBtnEl.contains(event.target) ||
+      (mobileMenuBtnEl && mobileMenuBtnEl.contains(event.target))
+    ) {
       return;
     }
 
@@ -279,6 +308,9 @@ function bindEvents() {
 function setSidebarOpen(isOpen) {
   appShellEl.classList.toggle("sidebar-open", isOpen);
   toggleSidebarBtnEl.setAttribute("aria-expanded", String(isOpen));
+  if (mobileMenuBtnEl) {
+    mobileMenuBtnEl.setAttribute("aria-expanded", String(isOpen));
+  }
 }
 
 function switchView(viewId) {
@@ -441,15 +473,20 @@ function renderAyahMode() {
   }
 }
 
-function renderPageMode() {
+function getPageAyahs(pageNumber) {
   const pageAyahs = [];
   state.quran.surahs.forEach((surah, surahIndex) => {
     surah.ayahs.forEach((ayah, ayahIndex) => {
-      if (Number(ayah.page) === Number(state.currentPage)) {
+      if (Number(ayah.page) === Number(pageNumber)) {
         pageAyahs.push({ surah, ayah, surahIndex, ayahIndex });
       }
     });
   });
+  return pageAyahs;
+}
+
+function renderPageMode() {
+  const pageAyahs = getPageAyahs(state.currentPage);
 
   if (pageAyahs.length) {
     state.currentSurahIndex = pageAyahs[0].surahIndex;
@@ -712,15 +749,83 @@ function updateKhatmaView() {
   khatmaProgressEl.textContent = `أنهيت ${read} من ${total} آية (${percent}%).`;
 }
 
+function buildRecitationUrl(surahNumber, ayahNumberInSurah) {
+  const reciterFolderById = {
+    "ar.alafasy": "Alafasy_128kbps",
+    "ar.husary": "Husary_128kbps"
+  };
+
+  const reciterFolder = reciterFolderById[state.settings.reciter] || "Alafasy_128kbps";
+  const surahPart = String(surahNumber).padStart(3, "0");
+  const ayahPart = String(ayahNumberInSurah).padStart(3, "0");
+  return `https://everyayah.com/data/${reciterFolder}/${surahPart}${ayahPart}.mp3`;
+}
+
+function stopRecitationPlayback() {
+  playbackToken += 1;
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio.src = "";
+    activeAudio = null;
+  }
+  audioBtnEl.textContent = "تشغيل الصوت";
+}
+
 function playCurrentAyah() {
-  const { surah, ayah } = getCurrentAyah();
-  const surahPart = String(surah.number).padStart(3, "0");
-  const ayahPart = String(ayah.numberInSurah).padStart(3, "0");
-  const url = `https://everyayah.com/data/Alafasy_128kbps/${surahPart}${ayahPart}.mp3`;
-  const audio = new Audio(url);
-  audio.play().catch(() => {
-    alert("تعذر تشغيل الصوت. تأكد من الاتصال أو جرّب لاحقاً.");
-  });
+  if (activeAudio) {
+    stopRecitationPlayback();
+    return;
+  }
+
+  const queue = state.mode === "page"
+    ? getPageAyahs(state.currentPage).map((item) => ({
+        surahNumber: item.surah.number,
+        ayahNumberInSurah: item.ayah.numberInSurah
+      }))
+    : (() => {
+        const { surah, ayah } = getCurrentAyah();
+        return [{ surahNumber: surah.number, ayahNumberInSurah: ayah.numberInSurah }];
+      })();
+
+  if (!queue.length) {
+    alert("لا توجد آيات متاحة للتشغيل في الصفحة الحالية.");
+    return;
+  }
+
+  const token = ++playbackToken;
+  audioBtnEl.textContent = "إيقاف الصوت";
+
+  const playByIndex = (index) => {
+    if (token !== playbackToken) {
+      return;
+    }
+
+    if (index >= queue.length) {
+      stopRecitationPlayback();
+      return;
+    }
+
+    const item = queue[index];
+    const url = buildRecitationUrl(item.surahNumber, item.ayahNumberInSurah);
+    const audio = new Audio(url);
+    activeAudio = audio;
+
+    audio.addEventListener("ended", () => {
+      playByIndex(index + 1);
+    }, { once: true });
+
+    audio.addEventListener("error", () => {
+      stopRecitationPlayback();
+      alert("تعذر تشغيل الصوت لهذه الآية. تحقق من الاتصال بالإنترنت.");
+    }, { once: true });
+
+    audio.play().catch(() => {
+      stopRecitationPlayback();
+      alert("تعذر تشغيل الصوت. تأكد من الاتصال أو جرّب لاحقاً.");
+    });
+  };
+
+  playByIndex(0);
 }
 
 function handleKeyboard(event) {
