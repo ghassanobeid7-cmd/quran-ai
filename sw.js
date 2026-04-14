@@ -5,7 +5,6 @@ const OFFLINE_ASSETS = [
   "index.html",
   "style.css",
   "script.js",
-  "tafsir-data.json",
   "app.js",
   "azkar.html",
   "azkar-script.js",

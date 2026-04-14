@@ -24,6 +24,25 @@
       box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
     }
 
+    .back-to-quran-fab {
+      position: fixed;
+      left: 14px;
+      bottom: 14px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid rgba(215, 176, 103, 0.42);
+      background: linear-gradient(180deg, rgba(30, 34, 43, 0.95), rgba(20, 24, 31, 0.95));
+      color: #f6eed9;
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.42);
+    }
+
     .tasbih-main {
       width: min(1100px, calc(100% - 32px));
       margin: 0 auto;
@@ -457,6 +476,8 @@
       </section>
     </main>
   </div>
+
+  <a class="back-to-quran-fab" href="index.html" aria-label="العودة إلى القرآن">القرآن</a>
 
   <script src="azkar-script.js" type="module"></script>
 </body>

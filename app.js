@@ -1,6 +1,5 @@
 const STORAGE_KEYS = {
   bookmarks: "qt_bookmarks",
-  khatma: "qt_khatma",
   settings: "qt_settings"
 };
 
@@ -14,7 +13,6 @@ const state = {
   currentPage: 1,
   activeView: "homeView",
   bookmarks: [],
-  khatma: { readAyahs: 0 },
   settings: {
     fontSize: 30,
     theme: "dark-gold",
@@ -27,6 +25,7 @@ const state = {
 const BASMALA_TEXT = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
 const readerEl = document.getElementById("reader");
+const pageNumberBadgeEl = document.getElementById("pageNumberBadge");
 const pageTafsirSectionEl = document.getElementById("pageTafsirSection");
 const pageTafsirEl = document.getElementById("pageTafsir");
 const appShellEl = document.getElementById("appShell");
@@ -42,13 +41,12 @@ const surahSearchEl = document.getElementById("surahSearch");
 const textSearchEl = document.getElementById("textSearch");
 const searchResultsEl = document.getElementById("searchResults");
 const bookmarksListEl = document.getElementById("bookmarksList");
-const khatmaProgressEl = document.getElementById("khatmaProgress");
-const fontSizeRangeEl = document.getElementById("fontSizeRange");
 const themeSelectEl = document.getElementById("themeSelect");
 const reciterSelectEl = document.getElementById("reciterSelect");
 const pageInputEl = document.getElementById("pageInput");
 const jumpBtnEl = document.getElementById("jumpBtn");
 const audioBtnEl = document.getElementById("audioBtn");
+const savePositionBtnEl = document.getElementById("savePositionBtn");
 
 let activeAudio = null;
 let playbackToken = 0;
@@ -64,10 +62,10 @@ async function init() {
   bindEvents();
   await cleanupDevCaches();
   await preloadEverything();
+  migrateBookmarks();
   renderSurahList();
   renderCurrent();
   updateBookmarksView();
-  updateKhatmaView();
   registerServiceWorker();
 }
 
@@ -104,12 +102,18 @@ async function cleanupDevCaches() {
 
 function loadFromStorage() {
   const bookmarks = readJSON(STORAGE_KEYS.bookmarks, []);
-  const khatma = readJSON(STORAGE_KEYS.khatma, { readAyahs: 0 });
   const settings = readJSON(STORAGE_KEYS.settings, state.settings);
 
   state.bookmarks = bookmarks;
-  state.khatma = khatma;
-  state.settings = { ...state.settings, ...settings };
+  state.settings = {
+    ...state.settings,
+    theme: settings?.theme,
+    reciter: settings?.reciter,
+    fontSize: 30
+  };
+  if (!["dark-gold", "white"].includes(state.settings.theme)) {
+    state.settings.theme = "dark-gold";
+  }
 }
 
 function readJSON(key, fallback) {
@@ -203,7 +207,9 @@ function bindEvents() {
     }
   });
   document.getElementById("audioBtn").addEventListener("click", playCurrentAyah);
-  document.getElementById("markReadBtn").addEventListener("click", markRead);
+  if (savePositionBtnEl) {
+    savePositionBtnEl.addEventListener("click", toggleBookmark);
+  }
   toggleSidebarBtnEl.addEventListener("click", () => {
     setSidebarOpen(!appShellEl.classList.contains("sidebar-open"));
   });
@@ -223,24 +229,28 @@ function bindEvents() {
   surahSearchEl.addEventListener("input", renderSurahList);
   textSearchEl.addEventListener("input", runTextSearch);
 
-  fontSizeRangeEl.value = String(state.settings.fontSize);
-  themeSelectEl.value = state.settings.theme;
-  reciterSelectEl.value = state.settings.reciter;
+  if (themeSelectEl) {
+    themeSelectEl.value = state.settings.theme;
+  }
+  if (reciterSelectEl) {
+    reciterSelectEl.value = state.settings.reciter;
+  }
 
-  fontSizeRangeEl.addEventListener("input", (event) => {
-    state.settings.fontSize = Number(event.target.value);
-    persistSettings();
-  });
+  if (themeSelectEl) {
+    themeSelectEl.addEventListener("change", (event) => {
+      state.settings.theme = ["dark-gold", "white"].includes(event.target.value)
+        ? event.target.value
+        : "dark-gold";
+      persistSettings();
+    });
+  }
 
-  themeSelectEl.addEventListener("change", (event) => {
-    state.settings.theme = event.target.value;
-    persistSettings();
-  });
-
-  reciterSelectEl.addEventListener("change", (event) => {
-    state.settings.reciter = event.target.value;
-    persistSettings();
-  });
+  if (reciterSelectEl) {
+    reciterSelectEl.addEventListener("change", (event) => {
+      state.settings.reciter = event.target.value;
+      persistSettings();
+    });
+  }
 
   document.querySelectorAll(".mobile-nav button").forEach((button) => {
     button.addEventListener("click", () => {
@@ -280,7 +290,7 @@ function bindEvents() {
     const dy = touch.clientY - state.touchStartY;
 
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30 && state.mode === "page") {
-      navigate(dx < 0 ? 1 : -1);
+      navigate(dx > 0 ? 1 : -1);
     }
 
     if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 30 && state.mode === "ayah") {
@@ -313,7 +323,21 @@ function setSidebarOpen(isOpen) {
   }
 }
 
+function animatePageTurn(direction) {
+  if (!readerEl) {
+    return;
+  }
+
+  readerEl.classList.remove("page-turn-next", "page-turn-prev");
+  void readerEl.offsetWidth;
+  readerEl.classList.add(direction === "next" ? "page-turn-next" : "page-turn-prev");
+}
+
 function switchView(viewId) {
+  if (!viewId) {
+    return;
+  }
+
   state.activeView = viewId;
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.toggle("active", view.id === viewId);
@@ -325,7 +349,7 @@ function switchView(viewId) {
 }
 
 function applySettings() {
-  document.documentElement.style.setProperty("--font-size", `${state.settings.fontSize}px`);
+  document.documentElement.style.setProperty("--font-size", "30px");
   document.documentElement.dataset.theme = state.settings.theme;
 }
 
@@ -471,6 +495,10 @@ function renderAyahMode() {
   if (pageTafsirSectionEl) {
     pageTafsirSectionEl.style.display = "none";
   }
+
+  if (pageNumberBadgeEl) {
+    pageNumberBadgeEl.textContent = `الصفحة ${ayah.page}`;
+  }
 }
 
 function getPageAyahs(pageNumber) {
@@ -496,13 +524,17 @@ function renderPageMode() {
   currentTitleEl.textContent = `الصفحة ${state.currentPage}`;
   currentMetaEl.textContent = `${pageAyahs.length} آية`;
 
+  if (pageNumberBadgeEl) {
+    pageNumberBadgeEl.textContent = `الصفحة ${state.currentPage}`;
+  }
+
   const textHtml = pageAyahs
     .map((item, index) => {
       const ayahSplit = splitLeadingBasmala(item.ayah.text, item.surah.number, item.ayah.numberInSurah);
       const parts = [];
-      const isFirstInSurah = index === 0 || pageAyahs[index - 1].surah.number !== item.surah.number;
+      const isSurahStart = item.ayah.numberInSurah === 1;
 
-      if (isFirstInSurah) {
+      if (isSurahStart) {
         parts.push(`<div class="surah-inline-title">${escapeHtml(item.surah.name)}</div>`);
         if (Number(item.surah.number) !== 9) {
           parts.push(`<div class="basmala-display">${BASMALA_TEXT}</div>`);
@@ -576,6 +608,7 @@ function navigate(step) {
   } else {
     const maxPage = getMaxPage();
     state.currentPage = Math.min(maxPage, Math.max(1, state.currentPage + step));
+    animatePageTurn(step > 0 ? "next" : "prev");
   }
 
   renderCurrent();
@@ -588,10 +621,12 @@ function jumpToPageFromInput() {
   }
 
   const maxPage = getMaxPage();
+  const previousPage = state.currentPage;
   state.currentPage = Math.min(maxPage, Math.max(1, pageNum));
   pageInputEl.value = String(state.currentPage);
   state.mode = "page";
   modeToggleEl.textContent = "المسبحة";
+  animatePageTurn(state.currentPage >= previousPage ? "next" : "prev");
   renderCurrent();
 }
 
@@ -614,6 +649,70 @@ function moveSurah(step, fromEnd = false) {
   const surah = state.quran.surahs[state.currentSurahIndex];
   state.currentAyahIndex = fromEnd ? surah.ayahs.length - 1 : 0;
   renderCurrent();
+}
+
+function getSurahNameByPage(pageNumber) {
+  const pageAyahs = getPageAyahs(pageNumber);
+  if (!pageAyahs.length) {
+    return "";
+  }
+
+  const firstSurah = pageAyahs[0].surah;
+  return firstSurah?.name || "";
+}
+
+function normalizeBookmark(item) {
+  if (!item) {
+    return null;
+  }
+
+  if (item.page) {
+    return {
+      key: `page:${item.page}`,
+      page: Number(item.page),
+      surahName: String(item.surahName || getSurahNameByPage(Number(item.page)) || ""),
+      label: String(item.label || `الصفحة ${item.page}`)
+    };
+  }
+
+  if (item.surahId && item.ayahInSurah) {
+    const surah = state.quran?.surahs?.find((entry) => entry.number === Number(item.surahId));
+    const ayah = surah?.ayahs?.find((entry) => entry.numberInSurah === Number(item.ayahInSurah));
+    const page = ayah?.page;
+    if (!page) {
+      return null;
+    }
+
+    return {
+      key: `page:${page}`,
+      page: Number(page),
+      surahName: surah?.name || String(item.label || ""),
+      label: `الصفحة ${page} - ${surah?.name || ""}`.trim()
+    };
+  }
+
+  return null;
+}
+
+function migrateBookmarks() {
+  if (!state.quran?.surahs?.length) {
+    return;
+  }
+
+  const migrated = [];
+  const seen = new Set();
+
+  state.bookmarks.forEach((item) => {
+    const normalized = normalizeBookmark(item);
+    if (!normalized || seen.has(normalized.key)) {
+      return;
+    }
+    seen.add(normalized.key);
+    migrated.push(normalized);
+  });
+
+  state.bookmarks = migrated;
+  writeJSON(STORAGE_KEYS.bookmarks, state.bookmarks);
 }
 
 function runTextSearch() {
@@ -680,8 +779,9 @@ function runTextSearch() {
 }
 
 function toggleBookmark() {
-  const { surah, ayah } = getCurrentAyah();
-  const key = `${surah.number}:${ayah.numberInSurah}`;
+  const page = Number(state.currentPage);
+  const pageLabel = getSurahNameByPage(page);
+  const key = `page:${page}`;
   const existingIndex = state.bookmarks.findIndex((item) => item.key === key);
 
   if (existingIndex >= 0) {
@@ -689,9 +789,9 @@ function toggleBookmark() {
   } else {
     state.bookmarks.push({
       key,
-      surahId: surah.number,
-      ayahInSurah: ayah.numberInSurah,
-      label: `${surah.name} - آية ${ayah.numberInSurah}`
+      page,
+      surahName: pageLabel,
+      label: `الصفحة ${page}${pageLabel ? ` - ${pageLabel}` : ""}`
     });
   }
 
@@ -701,8 +801,7 @@ function toggleBookmark() {
 }
 
 function updateBookmarkButton() {
-  const { surah, ayah } = getCurrentAyah();
-  const key = `${surah.number}:${ayah.numberInSurah}`;
+  const key = `page:${state.currentPage}`;
   const exists = state.bookmarks.some((item) => item.key === key);
   bookmarkToggleEl.style.color = exists ? "var(--accent)" : "var(--text)";
 }
@@ -717,8 +816,21 @@ function updateBookmarksView() {
 
   state.bookmarks.forEach((bookmark) => {
     const li = document.createElement("li");
-    li.className = "result-item";
-    li.textContent = bookmark.label;
+    li.className = "result-item bookmark-item";
+    li.innerHTML = `
+      <div class="bookmark-content">
+        <strong>الصفحة ${bookmark.page}</strong>
+        <div>${bookmark.surahName || bookmark.label || ""}</div>
+      </div>
+      <button class="btn bookmark-delete-btn" type="button" aria-label="حذف الإشارة">حذف</button>
+    `;
+
+    const deleteBtn = li.querySelector(".bookmark-delete-btn");
+    deleteBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      removeBookmark(bookmark.key);
+    });
+
     li.addEventListener("click", () => {
       jumpToBookmark(bookmark);
     });
@@ -726,27 +838,19 @@ function updateBookmarksView() {
   });
 }
 
+function removeBookmark(bookmarkKey) {
+  state.bookmarks = state.bookmarks.filter((item) => item.key !== bookmarkKey);
+  writeJSON(STORAGE_KEYS.bookmarks, state.bookmarks);
+  updateBookmarksView();
+  updateBookmarkButton();
+}
+
 function jumpToBookmark(bookmark) {
   state.mode = "page";
   modeToggleEl.textContent = "المسبحة";
-  state.currentSurahIndex = bookmark.surahId - 1;
-  state.currentAyahIndex = bookmark.ayahInSurah - 1;
+  state.currentPage = Number(bookmark.page);
   switchView("homeView");
   renderCurrent();
-}
-
-function markRead() {
-  const { ayah } = getCurrentAyah();
-  state.khatma.readAyahs = Math.max(state.khatma.readAyahs, ayah.number);
-  writeJSON(STORAGE_KEYS.khatma, state.khatma);
-  updateKhatmaView();
-}
-
-function updateKhatmaView() {
-  const total = state.quran?.meta?.totalAyahs || 6236;
-  const read = state.khatma.readAyahs;
-  const percent = ((read / total) * 100).toFixed(2);
-  khatmaProgressEl.textContent = `أنهيت ${read} من ${total} آية (${percent}%).`;
 }
 
 function buildRecitationUrl(surahNumber, ayahNumberInSurah) {
@@ -765,7 +869,6 @@ function stopRecitationPlayback() {
   playbackToken += 1;
   if (activeAudio) {
     activeAudio.pause();
-    activeAudio.src = "";
     activeAudio = null;
   }
   audioBtnEl.textContent = "تشغيل الصوت";
@@ -815,11 +918,17 @@ function playCurrentAyah() {
     }, { once: true });
 
     audio.addEventListener("error", () => {
+      if (token !== playbackToken) {
+        return;
+      }
       stopRecitationPlayback();
       alert("تعذر تشغيل الصوت لهذه الآية. تحقق من الاتصال بالإنترنت.");
     }, { once: true });
 
     audio.play().catch(() => {
+      if (token !== playbackToken) {
+        return;
+      }
       stopRecitationPlayback();
       alert("تعذر تشغيل الصوت. تأكد من الاتصال أو جرّب لاحقاً.");
     });

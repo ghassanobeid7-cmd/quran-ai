@@ -127,6 +127,7 @@ function setAdhkarTab(tabName) {
 }
 
 tasbihPadBtn.addEventListener("click", increment);
+
 tasbihResetBtn.addEventListener("click", resetCounter);
 
 dhikrPresetButtons.forEach((button) => {

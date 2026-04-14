@@ -12,10 +12,10 @@
 <body>
   <div class="app-shell" id="appShell">
     <aside class="sidebar" id="surahSidebar" aria-label="قائمة السور">
-      <nav class="drawer-nav mobile-only" aria-label="قائمة التطبيق">
+      <nav class="drawer-nav" aria-label="قائمة التطبيق">
         <button class="btn drawer-nav-btn" data-view="homeView">الرئيسية</button>
         <button class="btn drawer-nav-btn" data-view="searchView">البحث</button>
-        <button class="btn drawer-nav-btn" data-view="khatmaView">الختمة</button>
+        <button class="btn drawer-nav-btn" data-view="bookmarksView">إشاراتي</button>
         <button class="btn drawer-nav-btn" data-view="settingsView">الإعدادات</button>
       </nav>
       <div class="brand">
@@ -28,7 +28,7 @@
     </aside>
 
     <main class="main-content">
-      <button id="mobileMenuBtn" class="mobile-clean-menu mobile-only" aria-label="فتح القائمة" aria-expanded="false">⋮</button>
+      <button id="mobileMenuBtn" class="mobile-clean-menu" aria-label="فتح القائمة" aria-expanded="false">⋮</button>
       <header class="topbar">
         <button id="toggleSidebar" class="btn" aria-label="إظهار أو إخفاء السور" aria-expanded="false">السور</button>
         <div class="topbar-title">
@@ -45,29 +45,25 @@
         <div class="mushaf-page-shell">
           <div id="reader" class="reader mushaf-page" tabindex="0" aria-label="قارئ القرآن"></div>
         </div>
+        <div id="pageNumberBadge" class="page-number-badge"></div>
+        <section id="pageTafsirSection" class="page-tafsir-section">
+          <h4>التفسير الميسر للصفحة</h4>
+          <div id="pageTafsir" class="tafsir-box"></div>
+        </section>
         <div class="reader-controls">
           <button id="prevBtn" class="btn">السابق</button>
           <input id="pageInput" class="page-jump-input" type="number" min="1" max="604" placeholder="رقم الصفحة" />
           <button id="jumpBtn" class="btn">اذهب</button>
           <button id="nextBtn" class="btn">التالي</button>
+          <button id="savePositionBtn" class="btn">حفظ الصفحة</button>
           <button id="audioBtn" class="btn">تشغيل الصوت</button>
         </div>
-        <section id="pageTafsirSection" class="page-tafsir-section">
-          <h4>التفسير الميسر للصفحة</h4>
-          <div id="pageTafsir" class="tafsir-box"></div>
-        </section>
       </section>
 
       <section id="searchView" class="view">
         <h3>البحث في القرآن</h3>
         <input id="textSearch" type="search" placeholder="اكتب كلمة أو جزء آية..." />
         <ul id="searchResults" class="result-list"></ul>
-      </section>
-
-      <section id="khatmaView" class="view">
-        <h3>متابعة الختمة</h3>
-        <p id="khatmaProgress">لم تبدأ بعد.</p>
-        <button id="markReadBtn" class="btn">تمت قراءة الآية الحالية</button>
       </section>
 
       <section id="bookmarksView" class="view">
@@ -78,19 +74,15 @@
       <section id="settingsView" class="view">
         <h3>الإعدادات</h3>
         <div class="settings-grid">
-          <label>
-            حجم الخط
-            <input id="fontSizeRange" type="range" min="18" max="44" step="1" />
-          </label>
-          <label>
-            الثيم
+          <label class="setting-item">
+            <span class="setting-label">اللون</span>
             <select id="themeSelect">
-              <option value="dark-gold">داكن ذهبي</option>
-              <option value="sepia">سيبيا</option>
+              <option value="dark-gold">ذهبي</option>
+              <option value="white">أبيض</option>
             </select>
           </label>
-          <label>
-            القارئ
+          <label class="setting-item">
+            <span class="setting-label">القارئ</span>
             <select id="reciterSelect">
               <option value="ar.alafasy">العفاسي</option>
               <option value="ar.husary">الحصري</option>
@@ -106,9 +98,8 @@
   <nav class="mobile-nav mobile-only">
     <button data-view="homeView" class="active">الرئيسية</button>
     <button data-view="searchView">البحث</button>
-    <button data-view="khatmaView">الختمة</button>
     <button data-href="azkar.html">المسبحة</button>
-    <button data-view="bookmarksView">الإشارات</button>
+    <button data-view="bookmarksView">إشاراتي</button>
     <button data-view="settingsView">الإعدادات</button>
   </nav>
 
