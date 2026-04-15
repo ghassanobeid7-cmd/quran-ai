@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "python -m http.server 5500",
-    "start:win": "py -m http.server 5500"
+    "start:win": "py -m http.server 5500",
+    "generate:tafsir": "node generate/generate-tafsir.js"
   }
 }

@@ -272,6 +272,20 @@ select {
   margin: 0 0 8px;
 }
 
+.tafsir-section-block {
+  padding: 10px 12px;
+  border: 1px solid rgba(215, 176, 103, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 10px;
+}
+
+.tafsir-section-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
 .btn,
 .icon-btn,
 .mobile-nav button {

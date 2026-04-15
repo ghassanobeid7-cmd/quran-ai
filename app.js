@@ -554,8 +554,38 @@ function renderPageMode() {
     .filter(Boolean)
     .join(" ");
 
-  const tafsir = state.tafsirPage[String(state.currentPage)] || "لا يوجد تفسير متاح لهذه الصفحة.";
-  const tafsirHtml = String(tafsir)
+  const tafsirEntry = state.tafsirPage[String(state.currentPage)] || "لا يوجد تفسير متاح لهذه الصفحة.";
+  let tafsirHtml = "";
+
+  if (tafsirEntry && typeof tafsirEntry === "object" && Array.isArray(tafsirEntry.tafsir_sections)) {
+    tafsirHtml = tafsirEntry.tafsir_sections
+      .map((section) => {
+        const sectionTitle = escapeHtml(`سورة ${section.surah || "غير معروفة"} (${section.surah_number || "-"})`);
+        const sectionBody = formatTafsirText(section.tafsir || "");
+        return `
+          <div class="tafsir-section-block">
+            <div class="tafsir-section-title">${sectionTitle}</div>
+            ${sectionBody}
+          </div>
+        `;
+      })
+      .join("");
+  } else {
+    tafsirHtml = formatTafsirText(String(tafsirEntry));
+  }
+
+  readerEl.innerHTML = `
+    <div class="page-ayahs">${textHtml || "لا توجد آيات في هذه الصفحة ضمن البيانات الحالية."}</div>
+  `;
+
+  if (pageTafsirSectionEl && pageTafsirEl) {
+    pageTafsirSectionEl.style.display = "block";
+    pageTafsirEl.innerHTML = tafsirHtml;
+  }
+}
+
+function formatTafsirText(text) {
+  return String(text)
     .split(/\n/)
     .map((line) => {
       const safeLine = line
@@ -567,7 +597,7 @@ function renderPageMode() {
         return "<br>";
       }
 
-      if (safeLine.startsWith("◆ ")) {
+      if (safeLine.startsWith("◆ ") || safeLine.endsWith("◆")) {
         return `<div class="tafsir-marker">${safeLine}</div>`;
       }
 
@@ -578,15 +608,6 @@ function renderPageMode() {
       return `<div class="tafsir-line">${safeLine}</div>`;
     })
     .join("");
-
-  readerEl.innerHTML = `
-    <div class="page-ayahs">${textHtml || "لا توجد آيات في هذه الصفحة ضمن البيانات الحالية."}</div>
-  `;
-
-  if (pageTafsirSectionEl && pageTafsirEl) {
-    pageTafsirSectionEl.style.display = "block";
-    pageTafsirEl.innerHTML = tafsirHtml;
-  }
 }
 
 function navigate(step) {
