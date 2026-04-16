@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#0f1115" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" type="image/png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <title>القرآن والتفسير</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -17,6 +18,10 @@
         <button class="btn drawer-nav-btn" data-view="searchView">البحث</button>
         <button class="btn drawer-nav-btn" data-view="bookmarksView">إشاراتي</button>
         <button class="btn drawer-nav-btn" data-view="settingsView">الإعدادات</button>
+        <button class="btn drawer-nav-btn drawer-nav-btn-tasbih" data-href="azkar.html" aria-label="فتح المسبحة">
+          <span class="material-symbols-rounded" aria-hidden="true">spa</span>
+          <span>المسبحة</span>
+        </button>
       </nav>
       <div class="brand">
         <h1>القرآن والتفسير</h1>
@@ -47,7 +52,7 @@
         </div>
         <div id="pageNumberBadge" class="page-number-badge"></div>
         <section id="pageTafsirSection" class="page-tafsir-section">
-          <h4>التفسير الميسر للصفحة</h4>
+          <h4> ملخص التفسير الميسر للصفحة بالذكاء الاصطناعي </h4>
           <div id="pageTafsir" class="tafsir-box"></div>
         </section>
         <div class="reader-controls">
@@ -94,6 +99,31 @@
   </div>
 
   <a id="tasbihFab" class="tasbih-fab mobile-only" href="azkar.html" aria-label="فتح المسبحة">م</a>
+
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="شريط تنقل الهاتف">
+    <button id="mobileMoreBtn" class="mobile-bottom-btn" type="button" aria-label="فتح القائمة">
+      <span class="material-symbols-rounded" aria-hidden="true">more_vert</span>
+    </button>
+    <button id="mobileBookmarkBtn" class="mobile-bottom-btn" type="button" aria-label="حفظ الصفحة" aria-pressed="false">
+      <span id="mobileBookmarkIcon" class="material-symbols-rounded" aria-hidden="true">bookmark_border</span>
+    </button>
+    <button id="mobileAudioBtn" class="mobile-bottom-btn" type="button" aria-label="تشغيل الصوت" aria-pressed="false">
+      <span id="mobileAudioIcon" class="material-symbols-rounded" aria-hidden="true">play_arrow</span>
+    </button>
+    <button id="mobileJumpBtn" class="mobile-bottom-btn" type="button" aria-label="الانتقال إلى صفحة">
+      <span class="material-symbols-rounded" aria-hidden="true">find_in_page</span>
+    </button>
+  </nav>
+
+  <nav class="mobile-page-nav" id="mobilePageNav" aria-label="التنقل بين الصفحات">
+    <button id="mobilePrevBtn" class="mobile-page-btn" type="button">← السابق</button>
+    <button id="mobileNextBtn" class="mobile-page-btn" type="button">التالي →</button>
+  </nav>
+
+  <div id="mobileJumpPanel" class="mobile-jump-panel" hidden>
+    <input id="mobileJumpInput" class="mobile-jump-input" type="number" min="1" max="604" inputmode="numeric" placeholder="رقم الصفحة" aria-label="رقم الصفحة" />
+    <button id="mobileJumpGoBtn" class="btn" type="button">اذهب</button>
+  </div>
 
   <nav class="mobile-nav mobile-only">
     <button data-view="homeView" class="active">الرئيسية</button>

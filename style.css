@@ -9,6 +9,21 @@
   --danger: #d25f5f;
   --radius: 16px;
   --shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+  --mobile-nav-bg: linear-gradient(180deg, rgba(21, 25, 31, 0.97), rgba(10, 12, 16, 0.97));
+  --mobile-nav-border: rgba(201, 168, 76, 0.34);
+  --mobile-nav-icon: #f6f6f2;
+  --mobile-nav-icon-active: #c9a84c;
+  --mobile-nav-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --mobile-page-nav-bg: rgba(16, 20, 25, 0.88);
+  --mobile-page-nav-border: rgba(201, 168, 76, 0.28);
+  --mobile-page-nav-shadow: 0 9px 24px rgba(0, 0, 0, 0.36);
+  --mobile-page-btn-bg: rgba(255, 255, 255, 0.02);
+  --mobile-page-btn-bg-hover: rgba(201, 168, 76, 0.12);
+  --mobile-page-btn-border: rgba(201, 168, 76, 0.24);
+  --mobile-page-btn-text: #f5f2e8;
+  --mobile-jump-bg: rgba(10, 12, 16, 0.98);
 }
 
 :root[data-theme="white"] {
@@ -20,6 +35,23 @@
   --accent: #b8891a;
   --accent-2: #8b6511;
   --danger: #a22e2e;
+  --mobile-nav-bg: rgba(255, 255, 255, 0.97);
+  --mobile-nav-border: rgba(0, 0, 0, 0.14);
+  --mobile-nav-icon: #1a1a1a;
+  --mobile-nav-icon-active: #c9a84c;
+  --mobile-nav-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 12px 24px rgba(0, 0, 0, 0.14);
+  --mobile-page-nav-bg: rgba(255, 255, 255, 0.95);
+  --mobile-page-nav-border: rgba(0, 0, 0, 0.12);
+  --mobile-page-nav-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.12);
+  --mobile-page-btn-bg: rgba(0, 0, 0, 0.02);
+  --mobile-page-btn-bg-hover: rgba(201, 168, 76, 0.12);
+  --mobile-page-btn-border: rgba(0, 0, 0, 0.15);
+  --mobile-page-btn-text: #333333;
+  --mobile-jump-bg: rgba(255, 255, 255, 0.98);
 }
 
 * {
@@ -212,13 +244,13 @@ select {
 }
 
 .tafsir-box {
-  margin-top: 18px;
+  margin-top: 12px;
   font-size: 0.92em;
   line-height: 1.8;
   color: var(--muted);
   background: rgba(215, 176, 103, 0.08);
   border-radius: 14px;
-  padding: 12px;
+  padding: 16px;
 }
 
 .reader-controls {
@@ -238,13 +270,13 @@ select {
 }
 
 .page-tafsir-section {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid rgba(215, 176, 103, 0.22);
 }
 
 .page-tafsir-section h4 {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 1rem;
 }
 
@@ -273,17 +305,17 @@ select {
 }
 
 .tafsir-section-block {
-  padding: 10px 12px;
+  padding: 16px;
   border: 1px solid rgba(215, 176, 103, 0.22);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.02);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .tafsir-section-title {
   font-weight: 700;
   color: var(--accent);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .btn,
@@ -490,13 +522,13 @@ select {
 }
 
 .tafsir-box {
-  margin-top: 18px;
+  margin-top: 12px;
   font-size: 0.92em;
   line-height: 1.8;
   color: var(--muted);
   background: rgba(215, 176, 103, 0.08);
   border-radius: 14px;
-  padding: 12px;
+  padding: 16px;
 }
 
 .reader-controls {
@@ -516,13 +548,13 @@ select {
 }
 
 .page-tafsir-section {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid rgba(215, 176, 103, 0.22);
 }
 
 .page-tafsir-section h4 {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 1rem;
 }
 
@@ -1013,7 +1045,7 @@ select {
 }
 
 .surah-inline-title {
-  margin: 20px 0 10px;
+  margin: 14px 0 12px;
   text-align: center;
   font-size: 1.08em;
   color: var(--accent);
@@ -1024,6 +1056,28 @@ select {
   display: grid;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.drawer-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.drawer-nav-btn-tasbih {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(201, 168, 76, 0.35);
+  color: #c9a84c;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: linear-gradient(180deg, rgba(201, 168, 76, 0.14), rgba(201, 168, 76, 0.06));
+}
+
+.drawer-nav-btn-tasbih .material-symbols-rounded {
+  color: #c9a84c;
+  font-size: 1.2rem;
 }
 
 .mobile-clean-menu {
@@ -1191,4 +1245,227 @@ select {
     font-size: clamp(16px, 4.7vw, 21px);
     line-height: 2.05;
   }
+}
+
+.material-symbols-rounded {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+.mobile-bottom-nav,
+.mobile-page-nav,
+.mobile-jump-panel {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-bottom: 152px;
+  }
+
+  .reader-controls,
+  .mobile-nav,
+  .tasbih-fab,
+  .mobile-clean-menu {
+    display: none !important;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    z-index: 120;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px;
+    border-radius: 18px;
+    border: 1px solid var(--mobile-nav-border);
+    border-top: 1px solid var(--mobile-nav-border);
+    background: var(--mobile-nav-bg);
+    box-shadow: var(--mobile-nav-shadow);
+    backdrop-filter: blur(10px);
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.26s ease, opacity 0.2s ease;
+  }
+
+  .mobile-page-nav {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    z-index: 119;
+    min-height: 44px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 14px;
+    border: 1px solid var(--mobile-page-nav-border);
+    border-top: 1px solid var(--mobile-page-nav-border);
+    background: var(--mobile-page-nav-bg);
+    box-shadow: var(--mobile-page-nav-shadow);
+    backdrop-filter: blur(8px);
+    opacity: 0.96;
+    transition: transform 0.26s ease, opacity 0.2s ease;
+  }
+
+  .mobile-bottom-nav.is-hidden {
+    transform: translateY(calc(100% + 24px));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mobile-page-nav.is-hidden {
+    transform: translateY(calc(100% + 70px));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mobile-page-btn {
+    min-height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--mobile-page-btn-border);
+    background: var(--mobile-page-btn-bg);
+    color: var(--mobile-page-btn-text);
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.14s ease;
+  }
+
+  .mobile-page-btn:active {
+    transform: scale(0.98);
+  }
+
+  .mobile-page-btn:focus-visible {
+    outline: 2px solid rgba(201, 168, 76, 0.45);
+    outline-offset: 1px;
+  }
+
+  .mobile-page-btn:hover {
+    background: var(--mobile-page-btn-bg-hover);
+    border-color: rgba(201, 168, 76, 0.55);
+  }
+
+  .mobile-bottom-btn {
+    min-height: 46px;
+    border-radius: 12px;
+    border: 1px solid var(--mobile-nav-border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--mobile-nav-icon);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.14s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+
+  .mobile-bottom-btn:active {
+    transform: scale(0.97);
+  }
+
+  .mobile-bottom-btn .material-symbols-rounded {
+    font-size: 1.5rem;
+  }
+
+  .mobile-bottom-btn.is-active {
+    color: var(--mobile-nav-icon-active);
+    border-color: rgba(201, 168, 76, 0.62);
+    background: rgba(215, 176, 103, 0.12);
+  }
+
+  .mobile-jump-panel {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(128px + env(safe-area-inset-bottom, 0px));
+    z-index: 121;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid var(--mobile-nav-border);
+    background: var(--mobile-jump-bg);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.42);
+    animation: jump-panel-in 0.22s ease;
+  }
+
+  .mobile-jump-panel[hidden] {
+    display: none;
+  }
+
+  .mobile-jump-input {
+    width: 100%;
+    border: 1px solid rgba(215, 176, 103, 0.46);
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--text);
+    padding: 10px 12px;
+    min-height: 42px;
+  }
+
+  .mobile-jump-panel .btn {
+    min-height: 42px;
+    white-space: nowrap;
+  }
+
+  @keyframes jump-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Compact tafsir spacing without changing structure/content */
+.page-tafsir-section {
+  margin-top: 10px;
+  padding-top: 8px;
+}
+
+.page-tafsir-section h4 {
+  margin: 0 0 4px;
+}
+
+.page-tafsir-section .tafsir-box {
+  margin-top: 0;
+  line-height: 1.72;
+}
+
+.page-tafsir-section .tafsir-section-block {
+  margin-bottom: 4px;
+}
+
+.page-tafsir-section .tafsir-section-block:last-child {
+  margin-bottom: 0;
+}
+
+.page-tafsir-section .tafsir-marker {
+  margin: 6px 0 4px;
+}
+
+.page-tafsir-section .tafsir-note {
+  margin: 0 0 6px;
+}
+
+.page-tafsir-section .tafsir-line {
+  line-height: 1.75;
+  margin: 0 0 4px;
+}
+
+.page-tafsir-section .tafsir-box br {
+  line-height: 1.2;
 }

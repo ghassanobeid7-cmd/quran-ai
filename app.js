@@ -19,7 +19,8 @@ const state = {
     reciter: "ar.alafasy"
   },
   touchStartX: 0,
-  touchStartY: 0
+  touchStartY: 0,
+  mobileBottomNavHidden: false
 };
 
 const BASMALA_TEXT = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
@@ -47,6 +48,19 @@ const pageInputEl = document.getElementById("pageInput");
 const jumpBtnEl = document.getElementById("jumpBtn");
 const audioBtnEl = document.getElementById("audioBtn");
 const savePositionBtnEl = document.getElementById("savePositionBtn");
+const mobileBottomNavEl = document.getElementById("mobileBottomNav");
+const mobilePageNavEl = document.getElementById("mobilePageNav");
+const mobilePrevBtnEl = document.getElementById("mobilePrevBtn");
+const mobileNextBtnEl = document.getElementById("mobileNextBtn");
+const mobileMoreBtnEl = document.getElementById("mobileMoreBtn");
+const mobileBookmarkBtnEl = document.getElementById("mobileBookmarkBtn");
+const mobileBookmarkIconEl = document.getElementById("mobileBookmarkIcon");
+const mobileAudioBtnEl = document.getElementById("mobileAudioBtn");
+const mobileAudioIconEl = document.getElementById("mobileAudioIcon");
+const mobileJumpBtnEl = document.getElementById("mobileJumpBtn");
+const mobileJumpPanelEl = document.getElementById("mobileJumpPanel");
+const mobileJumpInputEl = document.getElementById("mobileJumpInput");
+const mobileJumpGoBtnEl = document.getElementById("mobileJumpGoBtn");
 
 let activeAudio = null;
 let playbackToken = 0;
@@ -220,6 +234,49 @@ function bindEvents() {
     });
   }
 
+  if (mobileMoreBtnEl) {
+    mobileMoreBtnEl.addEventListener("click", () => {
+      setMobileJumpPanelOpen(false);
+      setSidebarOpen(!appShellEl.classList.contains("sidebar-open"));
+    });
+  }
+
+  if (mobileBookmarkBtnEl) {
+    mobileBookmarkBtnEl.addEventListener("click", toggleBookmark);
+  }
+
+  if (mobileAudioBtnEl) {
+    mobileAudioBtnEl.addEventListener("click", playCurrentAyah);
+  }
+
+  if (mobilePrevBtnEl) {
+    mobilePrevBtnEl.addEventListener("click", () => navigate(-1));
+  }
+
+  if (mobileNextBtnEl) {
+    mobileNextBtnEl.addEventListener("click", () => navigate(1));
+  }
+
+  if (mobileJumpBtnEl) {
+    mobileJumpBtnEl.addEventListener("click", () => {
+      const shouldOpen = !!mobileJumpPanelEl?.hidden;
+      setMobileBottomNavHidden(false);
+      setMobileJumpPanelOpen(shouldOpen);
+    });
+  }
+
+  if (mobileJumpGoBtnEl) {
+    mobileJumpGoBtnEl.addEventListener("click", jumpToPageFromMobileInput);
+  }
+
+  if (mobileJumpInputEl) {
+    mobileJumpInputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        jumpToPageFromMobileInput();
+      }
+    });
+  }
+
   modeToggleEl.addEventListener("click", () => {
     window.location.href = "azkar.html";
   });
@@ -298,21 +355,99 @@ function bindEvents() {
     }
   });
 
-  document.addEventListener("click", (event) => {
-    if (!appShellEl.classList.contains("sidebar-open")) {
+  readerEl.addEventListener("click", () => {
+    if (!isMobileViewport()) {
       return;
     }
 
-    if (
-      surahSidebarEl.contains(event.target) ||
-      toggleSidebarBtnEl.contains(event.target) ||
-      (mobileMenuBtnEl && mobileMenuBtnEl.contains(event.target))
-    ) {
-      return;
-    }
-
-    setSidebarOpen(false);
+    setMobileBottomNavHidden(!state.mobileBottomNavHidden);
   });
+
+  document.addEventListener("click", (event) => {
+    if (appShellEl.classList.contains("sidebar-open")) {
+      if (
+        surahSidebarEl.contains(event.target) ||
+        toggleSidebarBtnEl.contains(event.target) ||
+        (mobileMenuBtnEl && mobileMenuBtnEl.contains(event.target)) ||
+        (mobileMoreBtnEl && mobileMoreBtnEl.contains(event.target))
+      ) {
+        return;
+      }
+
+      setSidebarOpen(false);
+    }
+
+    if (mobileJumpPanelEl && !mobileJumpPanelEl.hidden) {
+      const isJumpAreaClick =
+        mobileJumpPanelEl.contains(event.target) ||
+        (mobileJumpBtnEl && mobileJumpBtnEl.contains(event.target));
+
+      if (!isJumpAreaClick) {
+        setMobileJumpPanelOpen(false);
+      }
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (!isMobileViewport()) {
+      setMobileBottomNavHidden(false);
+      setMobileJumpPanelOpen(false);
+    }
+  });
+}
+
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
+
+function setMobileBottomNavHidden(isHidden) {
+  if (!mobileBottomNavEl) {
+    return;
+  }
+
+  state.mobileBottomNavHidden = Boolean(isHidden);
+  mobileBottomNavEl.classList.toggle("is-hidden", state.mobileBottomNavHidden);
+
+  if (mobilePageNavEl) {
+    mobilePageNavEl.classList.toggle("is-hidden", state.mobileBottomNavHidden);
+  }
+
+  if (state.mobileBottomNavHidden) {
+    setMobileJumpPanelOpen(false);
+  }
+}
+
+function setMobileJumpPanelOpen(isOpen) {
+  if (!mobileJumpPanelEl || !mobileJumpBtnEl) {
+    return;
+  }
+
+  const open = Boolean(isOpen);
+  mobileJumpPanelEl.hidden = !open;
+  mobileJumpPanelEl.classList.toggle("is-open", open);
+  mobileJumpBtnEl.classList.toggle("is-active", open);
+
+  if (open && mobileJumpInputEl) {
+    if (!mobileJumpInputEl.value) {
+      mobileJumpInputEl.value = String(state.currentPage || 1);
+    }
+    requestAnimationFrame(() => mobileJumpInputEl.focus());
+  }
+}
+
+function jumpToPageFromMobileInput() {
+  if (!mobileJumpInputEl) {
+    return;
+  }
+
+  const pageNum = Number.parseInt(mobileJumpInputEl.value, 10);
+  if (Number.isNaN(pageNum)) {
+    return;
+  }
+
+  pageInputEl.value = String(pageNum);
+  jumpToPageFromInput();
+  setMobileJumpPanelOpen(false);
 }
 
 function setSidebarOpen(isOpen) {
@@ -825,6 +960,15 @@ function updateBookmarkButton() {
   const key = `page:${state.currentPage}`;
   const exists = state.bookmarks.some((item) => item.key === key);
   bookmarkToggleEl.style.color = exists ? "var(--accent)" : "var(--text)";
+
+  if (mobileBookmarkIconEl) {
+    mobileBookmarkIconEl.textContent = exists ? "bookmark" : "bookmark_border";
+  }
+
+  if (mobileBookmarkBtnEl) {
+    mobileBookmarkBtnEl.classList.toggle("is-active", exists);
+    mobileBookmarkBtnEl.setAttribute("aria-pressed", String(exists));
+  }
 }
 
 function updateBookmarksView() {
@@ -892,7 +1036,20 @@ function stopRecitationPlayback() {
     activeAudio.pause();
     activeAudio = null;
   }
-  audioBtnEl.textContent = "تشغيل الصوت";
+  updateAudioButtons(false);
+}
+
+function updateAudioButtons(isPlaying) {
+  audioBtnEl.textContent = isPlaying ? "إيقاف الصوت" : "تشغيل الصوت";
+
+  if (mobileAudioIconEl) {
+    mobileAudioIconEl.textContent = isPlaying ? "pause" : "play_arrow";
+  }
+
+  if (mobileAudioBtnEl) {
+    mobileAudioBtnEl.classList.toggle("is-active", isPlaying);
+    mobileAudioBtnEl.setAttribute("aria-pressed", String(isPlaying));
+  }
 }
 
 function playCurrentAyah() {
@@ -917,7 +1074,7 @@ function playCurrentAyah() {
   }
 
   const token = ++playbackToken;
-  audioBtnEl.textContent = "إيقاف الصوت";
+  updateAudioButtons(true);
 
   const playByIndex = (index) => {
     if (token !== playbackToken) {
