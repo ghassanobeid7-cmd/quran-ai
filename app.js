@@ -192,9 +192,7 @@ async function preloadEverything() {
     "style.css",
     "app.js",
     "sw.js",
-    "manifest.json",
-    "icons/icon-192.svg",
-    "icons/icon-512.svg"
+    "manifest.json"
   ];
 
   if ("caches" in window) {
