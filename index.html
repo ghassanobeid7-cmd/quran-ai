@@ -9,6 +9,20 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <title>القرآن والتفسير</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    @media (max-width: 768px) {
+      .page-tafsir-section .tafsir-box {
+        padding: 10px 4px !important;
+      }
+      .tafsir-section-block {
+        padding: 12px 6px !important;
+      }
+      #pageTafsirSection {
+        margin-left: -4px;
+        margin-right: -4px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -66,18 +80,27 @@
       </section>
 
       <section id="searchView" class="view">
-        <h3>البحث في القرآن</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="margin: 0;">البحث في القرآن</h3>
+          <button class="btn return-to-quran-btn" style="min-width: 120px;">العودة للقرآن</button>
+        </div>
         <input id="textSearch" type="search" placeholder="اكتب كلمة أو جزء آية..." />
         <ul id="searchResults" class="result-list"></ul>
       </section>
 
       <section id="bookmarksView" class="view">
-        <h3>الإشارات المرجعية</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="margin: 0;">الإشارات المرجعية</h3>
+          <button class="btn return-to-quran-btn" style="min-width: 120px;">العودة للقرآن</button>
+        </div>
         <ul id="bookmarksList" class="result-list"></ul>
       </section>
 
       <section id="settingsView" class="view">
-        <h3>الإعدادات</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="margin: 0;">الإعدادات</h3>
+          <button class="btn return-to-quran-btn" style="min-width: 120px;">العودة للقرآن</button>
+        </div>
         <div class="settings-grid">
           <label class="setting-item">
             <span class="setting-label">اللون</span>

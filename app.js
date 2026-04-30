@@ -212,6 +212,13 @@ async function preloadEverything() {
 function bindEvents() {
   document.getElementById("prevBtn").addEventListener("click", () => navigate(-1));
   document.getElementById("nextBtn").addEventListener("click", () => navigate(1));
+
+  document.querySelectorAll(".return-to-quran-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      switchView("homeView");
+    });
+  });
+
   jumpBtnEl.addEventListener("click", jumpToPageFromInput);
   pageInputEl.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -333,32 +340,36 @@ function bindEvents() {
 
   document.addEventListener("keydown", handleKeyboard);
 
-  readerEl.addEventListener("touchstart", (event) => {
-    const touch = event.changedTouches[0];
-    state.touchStartX = touch.clientX;
-    state.touchStartY = touch.clientY;
-  });
+  const touchElements = [readerEl, pageTafsirSectionEl].filter(Boolean);
 
-  readerEl.addEventListener("touchend", (event) => {
-    const touch = event.changedTouches[0];
-    const dx = touch.clientX - state.touchStartX;
-    const dy = touch.clientY - state.touchStartY;
+  touchElements.forEach((el) => {
+    el.addEventListener("touchstart", (event) => {
+      const touch = event.changedTouches[0];
+      state.touchStartX = touch.clientX;
+      state.touchStartY = touch.clientY;
+    });
 
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30 && state.mode === "page") {
-      navigate(dx > 0 ? 1 : -1);
-    }
+    el.addEventListener("touchend", (event) => {
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - state.touchStartX;
+      const dy = touch.clientY - state.touchStartY;
 
-    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 30 && state.mode === "ayah") {
-      moveSurah(dy < 0 ? 1 : -1);
-    }
-  });
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30 && state.mode === "page") {
+        navigate(dx > 0 ? 1 : -1);
+      }
 
-  readerEl.addEventListener("click", () => {
-    if (!isMobileViewport()) {
-      return;
-    }
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 30 && state.mode === "ayah") {
+        moveSurah(dy < 0 ? 1 : -1);
+      }
+    });
 
-    setMobileBottomNavHidden(!state.mobileBottomNavHidden);
+    el.addEventListener("click", () => {
+      if (!isMobileViewport()) {
+        return;
+      }
+
+      setMobileBottomNavHidden(!state.mobileBottomNavHidden);
+    });
   });
 
   document.addEventListener("click", (event) => {
@@ -690,19 +701,34 @@ function renderPageMode() {
   const tafsirEntry = state.tafsirPage[String(state.currentPage)] || "لا يوجد تفسير متاح لهذه الصفحة.";
   let tafsirHtml = "";
 
-  if (tafsirEntry && typeof tafsirEntry === "object" && Array.isArray(tafsirEntry.tafsir_sections)) {
-    tafsirHtml = tafsirEntry.tafsir_sections
-      .map((section) => {
-        const sectionTitle = escapeHtml(`سورة ${section.surah || "غير معروفة"} (${section.surah_number || "-"})`);
-        const sectionBody = formatTafsirText(section.tafsir || "");
-        return `
-          <div class="tafsir-section-block">
-            <div class="tafsir-section-title">${sectionTitle}</div>
-            ${sectionBody}
-          </div>
-        `;
-      })
-      .join("");
+  if (tafsirEntry && typeof tafsirEntry === "object") {
+    if (Array.isArray(tafsirEntry.tafsir_sections)) {
+      tafsirHtml = tafsirEntry.tafsir_sections
+        .map((section) => {
+          const sectionTitle = escapeHtml(`سورة ${section.surah || "غير معروفة"} (${section.surah_number || "-"})`);
+          const sectionBody = formatTafsirText(section.tafsir || "");
+          return `
+            <div class="tafsir-section-block">
+              <div class="tafsir-section-title">${sectionTitle}</div>
+              ${sectionBody}
+            </div>
+          `;
+        })
+        .join("");
+    } else {
+      tafsirHtml = Object.entries(tafsirEntry)
+        .map(([surahName, tafsirText]) => {
+          const sectionTitle = escapeHtml(surahName);
+          const sectionBody = formatTafsirText(tafsirText || "");
+          return `
+            <div class="tafsir-section-block">
+              <div class="tafsir-section-title">${sectionTitle}</div>
+              ${sectionBody}
+            </div>
+          `;
+        })
+        .join("");
+    }
   } else {
     tafsirHtml = formatTafsirText(String(tafsirEntry));
   }
