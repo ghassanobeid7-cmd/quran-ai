@@ -10,8 +10,8 @@ const OFFLINE_ASSETS = [
   "data/quran.json",
   "data/tafsir_page.json",
   "manifest.json",
-  "icon-192.png",
-  "icon-512.png"
+  "icom-192.png",
+  "icom-512.png"
 ];
 
 self.addEventListener("install", (event) => {
