@@ -1,4 +1,4 @@
-const CACHE_NAME = "tafsir-pwa-v1";
+const CACHE_NAME = "tafsir-pwa-v2";
 
 const OFFLINE_ASSETS = [
   "./",

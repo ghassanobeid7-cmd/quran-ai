@@ -71,11 +71,25 @@ init().catch((error) => {
 });
 
 async function init() {
+  const loadingSpinnerEl = document.getElementById("loadingSpinner");
+  document.body.classList.add("ui-visible");
   loadFromStorage();
   applySettings();
   bindEvents();
   await cleanupDevCaches();
-  await preloadEverything();
+  
+  if (loadingSpinnerEl) {
+    loadingSpinnerEl.classList.remove("hidden");
+  }
+
+  try {
+    await preloadEverything();
+  } finally {
+    if (loadingSpinnerEl) {
+      loadingSpinnerEl.classList.add("hidden");
+    }
+  }
+
   migrateBookmarks();
   renderSurahList();
   renderCurrent();
@@ -148,7 +162,7 @@ async function fetchJSONWithFallback(urlCandidates) {
 
   for (const url of urlCandidates) {
     try {
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch(url);
       if (!response.ok) {
         lastError = new Error(`HTTP ${response.status} عند تحميل ${url}`);
         continue;
@@ -236,6 +250,10 @@ function bindEvents() {
   if (mobileMenuBtnEl) {
     mobileMenuBtnEl.addEventListener("click", () => {
       setSidebarOpen(!appShellEl.classList.contains("sidebar-open"));
+      if (isMobileViewport()) {
+        document.body.classList.remove("ui-visible");
+        setMobileBottomNavHidden(true);
+      }
     });
   }
 
@@ -243,6 +261,10 @@ function bindEvents() {
     mobileMoreBtnEl.addEventListener("click", () => {
       setMobileJumpPanelOpen(false);
       setSidebarOpen(!appShellEl.classList.contains("sidebar-open"));
+      if (isMobileViewport()) {
+        document.body.classList.remove("ui-visible");
+        setMobileBottomNavHidden(true);
+      }
     });
   }
 
@@ -363,12 +385,16 @@ function bindEvents() {
       }
     });
 
-    el.addEventListener("click", () => {
-      if (!isMobileViewport()) {
+    el.addEventListener("click", (event) => {
+      if (event.target.closest('button, .btn, .icon-btn, a, input, select')) {
         return;
       }
+      
+      if (!isMobileViewport()) return;
 
-      setMobileBottomNavHidden(!state.mobileBottomNavHidden);
+      document.body.classList.toggle("ui-visible");
+      const isVisible = document.body.classList.contains("ui-visible");
+      setMobileBottomNavHidden(!isVisible);
     });
   });
 
@@ -399,6 +425,7 @@ function bindEvents() {
 
   window.addEventListener("resize", () => {
     if (!isMobileViewport()) {
+      document.body.classList.add("ui-visible");
       setMobileBottomNavHidden(false);
       setMobileJumpPanelOpen(false);
     }
@@ -583,6 +610,44 @@ function getCurrentAyah() {
   };
 }
 
+function updateTopHeader() {
+  const topHeaderSurah = document.getElementById("topHeaderSurah");
+  const topHeaderNumber = document.getElementById("topHeaderNumber");
+  const topHeaderJuz = document.getElementById("topHeaderJuz");
+  const desktopTopbarTitle = document.getElementById("desktopTopbarTitle");
+
+  if (!topHeaderSurah || !topHeaderNumber || !topHeaderJuz) return;
+
+  let surah, ayah;
+  
+  if (state.mode === "ayah") {
+    const current = getCurrentAyah();
+    surah = current.surah;
+    ayah = current.ayah;
+  } else {
+    const pageAyahs = getPageAyahs(state.currentPage);
+    if (pageAyahs.length > 0) {
+      surah = pageAyahs[0].surah;
+      ayah = pageAyahs[0].ayah;
+    }
+  }
+
+  if (surah && ayah) {
+    topHeaderSurah.textContent = surah.name;
+    topHeaderNumber.textContent = `رقم ${surah.number}`;
+    topHeaderJuz.textContent = `الجزء ${ayah.juz}`;
+    
+    if (desktopTopbarTitle) {
+      desktopTopbarTitle.innerHTML = `
+        <div class="badge-surah-name" style="margin-bottom: 2px; font-size: 1.5rem;">${surah.name}</div>
+        <div class="badge-meta" style="font-size: 0.9rem;">
+          الصفحة ${state.currentPage} | الجزء ${ayah.juz} | سورة رقم ${surah.number}
+        </div>
+      `;
+    }
+  }
+}
+
 function renderCurrent() {
   if (state.mode === "ayah") {
     renderAyahMode();
@@ -590,6 +655,7 @@ function renderCurrent() {
     renderPageMode();
   }
   updateBookmarkButton();
+  updateTopHeader();
 }
 
 function escapeHtml(text) {
@@ -959,31 +1025,38 @@ function runTextSearch() {
 }
 
 function toggleBookmark() {
-  const page = Number(state.currentPage);
-  const pageLabel = getSurahNameByPage(page);
-  const key = `page:${page}`;
-  const existingIndex = state.bookmarks.findIndex((item) => item.key === key);
+  try {
+    const page = Number(state.currentPage);
+    const pageLabel = getSurahNameByPage(page);
+    const key = `page:${page}`;
+    const existingIndex = state.bookmarks.findIndex((item) => item.key === key);
 
-  if (existingIndex >= 0) {
-    state.bookmarks.splice(existingIndex, 1);
-  } else {
-    state.bookmarks.push({
-      key,
-      page,
-      surahName: pageLabel,
-      label: `الصفحة ${page}${pageLabel ? ` - ${pageLabel}` : ""}`
-    });
+    if (existingIndex >= 0) {
+      state.bookmarks.splice(existingIndex, 1);
+    } else {
+      state.bookmarks.push({
+        key,
+        page,
+        surahName: pageLabel,
+        label: `الصفحة ${page}${pageLabel ? ` - ${pageLabel}` : ""}`
+      });
+    }
+
+    writeJSON(STORAGE_KEYS.bookmarks, state.bookmarks);
+    updateBookmarksView();
+    updateBookmarkButton();
+  } catch (error) {
+    alert("حدث خطأ أثناء الحفظ: " + error.message);
   }
-
-  writeJSON(STORAGE_KEYS.bookmarks, state.bookmarks);
-  updateBookmarksView();
-  updateBookmarkButton();
 }
 
 function updateBookmarkButton() {
   const key = `page:${state.currentPage}`;
   const exists = state.bookmarks.some((item) => item.key === key);
-  bookmarkToggleEl.style.color = exists ? "var(--accent)" : "var(--text)";
+  
+  if (bookmarkToggleEl) {
+    bookmarkToggleEl.style.color = exists ? "var(--accent)" : "var(--text)";
+  }
 
   if (mobileBookmarkIconEl) {
     mobileBookmarkIconEl.textContent = exists ? "bookmark" : "bookmark_border";
@@ -992,6 +1065,12 @@ function updateBookmarkButton() {
   if (mobileBookmarkBtnEl) {
     mobileBookmarkBtnEl.classList.toggle("is-active", exists);
     mobileBookmarkBtnEl.setAttribute("aria-pressed", String(exists));
+  }
+
+  if (savePositionBtnEl) {
+    savePositionBtnEl.textContent = exists ? "تم الحفظ ★" : "حفظ الصفحة";
+    savePositionBtnEl.style.color = exists ? "var(--accent)" : "";
+    savePositionBtnEl.style.borderColor = exists ? "var(--accent)" : "";
   }
 }
 

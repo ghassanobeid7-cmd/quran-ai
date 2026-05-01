@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#0f1115" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <title>القرآن والتفسير</title>
   <link rel="stylesheet" href="style.css" />
@@ -25,6 +28,10 @@
   </style>
 </head>
 <body>
+  <div id="loadingSpinner" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>جاري تحميل البيانات...</p>
+  </div>
   <div class="app-shell" id="appShell">
     <aside class="sidebar" id="surahSidebar" aria-label="قائمة السور">
       <nav class="drawer-nav" aria-label="قائمة التطبيق">
@@ -47,12 +54,22 @@
     </aside>
 
     <main class="main-content">
+      <div id="topHeader" class="top-header">
+        <span id="topHeaderSurah" class="top-header-surah"></span>
+        <span class="top-header-divider">|</span>
+        <span id="topHeaderNumber" class="top-header-number"></span>
+        <span class="top-header-divider">|</span>
+        <span id="topHeaderJuz" class="top-header-juz"></span>
+      </div>
       <button id="mobileMenuBtn" class="mobile-clean-menu" aria-label="فتح القائمة" aria-expanded="false">⋮</button>
       <header class="topbar">
         <button id="toggleSidebar" class="btn" aria-label="إظهار أو إخفاء السور" aria-expanded="false">السور</button>
-        <div class="topbar-title">
+        <div class="topbar-title mobile-only">
           <h2 id="currentTitle">سورة الفاتحة</h2>
           <p id="currentMeta">آية 1</p>
+        </div>
+        <div class="topbar-title desktop-only" id="desktopTopbarTitle" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <!-- Filled by JS -->
         </div>
         <div class="topbar-actions">
           <button id="modeToggle" class="btn">المسبحة</button>
@@ -68,6 +85,7 @@
         <section id="pageTafsirSection" class="page-tafsir-section">
           <h4> ملخص التفسير الميسر للصفحة بالذكاء الاصطناعي </h4>
           <div id="pageTafsir" class="tafsir-box"></div>
+          <p class="tafsir-disclaimer">إخلاء مسؤولية: هذا التفسير مولّد ومُصاغ بمساعدة الذكاء الاصطناعي، وقد يحتوي على بعض الأخطاء.</p>
         </section>
         <div class="reader-controls">
           <button id="prevBtn" class="btn">السابق</button>
